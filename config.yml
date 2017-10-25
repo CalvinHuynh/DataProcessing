@@ -1,0 +1,5 @@
+default:
+  filePath: "D:/Vakken/Data Storage and Processing/"
+  #baseClean: "D:/Projects/SocialCharging/socialcharging/src/base_clean.R" # Absolute path to base_clean.R
+  #multiplotHelper: "D:/Projects/SocialCharging/socialcharging/src/multiplotHelper.R" # Absolute path to multiplotHelper.R
+
