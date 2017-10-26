@@ -41,7 +41,7 @@ moviesRatings <- merge(movies, ratings, by = "movieId")
 
 numberOfPeopleVoted <- moviesRatings %>%
   group_by(title) %>%
-  summarise(number_of_votes = n())
+  summarise(no_of_votes = n())
 
 summedUpRating <- moviesRatings %>%
   group_by(title) %>%
@@ -62,9 +62,8 @@ mergedMovieRatings <- mergedMovieRatings %>%
   mutate(no_of_letters = sapply(title, letters_count)) %>%
   mutate(no_of_consonants = no_of_letters - no_of_vowels)
 
-movieRatings <- subset(mergedMovieRatings,
+cleanedMovieLensDf <- subset(mergedMovieRatings,
                        select = 
                          c(title, no_of_votes,
                            avg_rating, no_of_vowels,
                            no_of_letters, no_of_consonants))
-
