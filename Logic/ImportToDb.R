@@ -1,4 +1,3 @@
-# install.packages("RMongo")
 library(RMongo)
 library(mongolite)
 library(readr)
