@@ -17,7 +17,8 @@ ui <- dashboardPage(
     menuItem("Raw data", tabName = "raw", icon = icon("th")),
     menuItem("Charts", tabName = "charts", icon = icon("bar-chart"),
              menuSubItem("Score vs vowels", tabName = "chart1"),
-             menuSubItem("Interactive plot", tabName = "chart2")
+             menuSubItem("Interactive plot", tabName = "chart2"),
+             menuSubItem("Interactive barplot", tabName = "chart3")
     )
   ),
   dashboardBody(
@@ -39,7 +40,7 @@ ui <- dashboardPage(
                               label = "Select a chart",
                               choices = c("Plot Letters" = "0",
                                           "Plot Consonants" = "1",
-                                          "Plot Vowels" = 2
+                                          "Plot Vowels" = "2"
                               ))
                 )
               ),
@@ -55,7 +56,7 @@ ui <- dashboardPage(
                 column(3,
                        wellPanel(
                          h4("Filter"),
-                         sliderInput("year", "Year released", 1916, 2016, value = c(1916, 2016)),
+                         sliderInput("year", "Year released", 1916, 2017, value = c(1916, 2017)),
                          numericInput("minGross", "Minimum gross", value = 0, min = 0, step = 100),
                          numericInput("maxGross", "Maximum gross", value = 9999999999, max = 9999999999, step = 100),
                          textInput("titleContains", "Title name contains (e.g., Pirate)")
@@ -77,6 +78,40 @@ ui <- dashboardPage(
                        )
                 )
               )
+      ),
+      tabItem(tabName = "chart3",
+              fluidRow(
+              headerPanel("Data plot"),
+              sidebarPanel(
+                selectInput(inputId = "layer",
+                            label = "Select a layer",
+                            choices = c("Plot Letters" = "3",
+                                        "Plot Consonants" = "4",
+                                        "Plot Vowels" = "5"
+                            )),
+                # sliderInput("year2", "Year released", 1916, 2017, value = c(1916, 2017)),
+                wellPanel(
+                  span("Test stuff:",
+                       textOutput("test")
+                  ),
+                  span("Test stuff2:",
+                       dataTableOutput("test2")
+                  )
+                )
+                # sliderInput('sampleSize', 'Sample Size', min = 1, max = nrow(diamonds),
+                #             value = 1000, step = 500, round = 0),
+                # selectInput('x', 'X', choices = nms, selected = "carat"),
+                # selectInput('y', 'Y', choices = nms, selected = "price"),
+                # selectInput('color', 'Color', choices = nms, selected = "clarity"),
+                # 
+                # selectInput('facet_row', 'Facet Row', c(None = '.', nms), selected = "clarity"),
+                # selectInput('facet_col', 'Facet Column', c(None = '.', nms)),
+                # sliderInput('plotHeight', 'Height of plot (in pixels)', 
+                #             min = 100, max = 2000, value = 1000)
+              ),
+              mainPanel(
+                plotly::plotlyOutput('plot3', height = "900px")
+              ))
       )
     )
   )

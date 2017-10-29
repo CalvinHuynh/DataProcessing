@@ -1,9 +1,11 @@
 library(shiny)
 library(dplyr)
 library(ggvis)
+library(plotly)
 
 source("Logic/Plot.R")
 df <- getData()
+df2 <- getData()
 
 server <- function(input, output) {
   options(shiny.maxRequestSize = 30 * 1024 ^ 2)
@@ -22,6 +24,9 @@ server <- function(input, output) {
     }
   })
   
+
+# Plot 2 ------------------------------------------------------------------
+  
   movies <- reactive({
     minYear <- input$year[1]
     maxYear <- input$year[2]
@@ -32,7 +37,8 @@ server <- function(input, output) {
     
     if (!is.null(input$titleContains) && input$titleContains != "") {
       containsTitle <- input$titleContains
-      moviesDf <- moviesDf %>% filter(containsTitle, title, fixed = TRUE)
+      moviesDf <- moviesDf %>%
+        filter(grepl(containsTitle, title))
     }
     
     if (!is.null(input$minGross)) {
@@ -88,10 +94,101 @@ server <- function(input, output) {
   interactivePlot %>% bind_shiny("plot2")
   
   output$n_movies <- renderText({
-    nrow(movies)
+    nrow(movies())
   })
   
   output$total_movies <- renderText({
     nrow(df)
+  })
+
+# Plot 3 ------------------------------------------------------------------
+
+  xAxisValue <- reactive({
+    if (input$layer == "3") {
+      xAxis <- noquote("no_of_letters")
+    } else if (input$layer == "4") {
+      xAxis <- noquote("no_of_consonants")
+    } else {
+      xAxis <- noquote("no_of_vowels")
+    }
+  })
+  
+  xAxisValue2 <- reactive({
+    if (input$layer == "3") {
+      xAxis2 <- df2$no_of_letters
+    } else if (input$layer == "4") {
+      xAxis2 <- df2$no_of_consonants
+    } else {
+      xAxis2 <- df2$no_of_vowels
+    }
+  })
+  
+  df_layer <- reactive({
+    if (input$layer == "3") {
+      data <- getTotalLetters()
+    } else if (input$layer == "4") {
+      data <- getOccurancesConsonants()
+    } else {
+      data <- getOccurancesVowels()
+    }
+  })
+  
+  number_text <- reactive({
+    if (input$layer == "3") {
+      hoverText <- paste('<b> Number of letters: </b>')
+    } else if (input$layer == "4") {
+      hoverText <- paste('<b> Number of consonants: </b>')
+    } else {
+      hoverText <- paste('<b> Number of vowels: </b>')
+    }
+  })
+  
+  # minYear <- reactive({
+  #   minYear <- input$year2[1]
+  # })
+  # 
+  # maxYear <- reactive({
+  #   maxYear <- input$year2[2]
+  # })
+  
+  # dataset <- reactive({
+  #   df2 %>%
+  #     filter(df2$title_year >= minYear,
+  #            df2$title_year <= maxYear)
+  # })
+  
+  output$plot3 <- renderPlotly({
+    
+    plot_ly() %>%
+      add_trace(data = df2, x = xAxisValue2(), y = ~title_year, type = 'scatter', name = 'release year', yaxis = 'y2',
+                marker = list(color = '#45171D'),
+                hoverinfo = "text",
+                text = ~paste0("<b>", title, "</b><br>",
+                                "<b>Year: </b>", title_year, "<br>",
+                                "<b>Score: </b>", imdb_score, "<br>",
+                                "<b>No of letters: </b>", no_of_letters, "<br>",
+                                "<b>No of vowels: </b>", no_of_vowels, "<br>",
+                                "<b>No of consonants: </b>", no_of_consonants, "<br>",
+                                "<b>Gross:</b> $", format( gross, big.mark = ",", scientific = FALSE))) %>%
+      add_trace(data = df_layer() ,x = df_layer()$xAxisValue, y = df_layer()$average_score, type = 'bar', name = 'average score',
+                marker = list(color = '#C9EFF9'),
+                hoverinfo = "text",
+                text = ~paste(number_text(), df_layer()[,1],
+                              '<b></br> Average score: </b>', average_score,
+                              '<b></br> Number of titles: </b>',  df_layer()[,3])) %>%
+      layout(title = 'Vowels related to score to year',
+             xaxis = list(title = ""),
+             yaxis = list(side = 'left', title = 'score', showgrid = FALSE, zeroline = FALSE),
+             yaxis2 = list(side = 'right', overlaying = "y", title = 'year', showgrid = FALSE, zeroline = FALSE))
+  })
+  
+  
+  
+  output$test <- renderText({
+    xAxisValue()
+  })
+  
+  output$test2 <- renderDataTable({
+    head(df_layer(), n = 2)
   })
 }

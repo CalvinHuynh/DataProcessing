@@ -2,8 +2,6 @@ library(RMongo)
 library(mongolite)
 library(readr)
 library(dplyr)
-# library(config)
-# config <- config::get(file = "config.yml")
 
 # General functions -------------------------------------------------------
 
